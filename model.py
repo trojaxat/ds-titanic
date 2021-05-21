@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -9,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
 
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
@@ -20,11 +20,6 @@ from sklearn.metrics import plot_confusion_matrix
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 titanic_data = os.path.join(CURR_DIR, "train.csv")
 data_frame = pd.read_csv(titanic_data, index_col=0)
-
-# # Imputer
-# impute_and_scale = make_pipeline(SimpleImputer(), MinMaxScaler())
-# impute_and_scale.fit(data_frame[['Age']])
-# impute_and_scale.transform(data_frame[['Age']])
 
 # Define Variable of interest
 X = data_frame[[
@@ -86,17 +81,18 @@ X_train, X_test, y_train, y_test = train_test_split(transformed_X, y, test_size=
 
 # Use dummy to test data, “stratified” generates predictions by respecting the training set’s class distribution.
 model = LogisticRegression()
-model.fit(transformed_X, y)
-ypred = model.predict(X_train)
+model.fit(X_train, y_train)
+
+ypred = model.predict(X_test)
+print('ypred: ', ypred)
+print('y_test: ', y_test)
+
+
 # Use model for prediction and scoring
 score = model.score(X_test, y_test)
-print('score: ', score)
-ytrue = model.predict(y_test)
+ytrue = y_test
 
-# ask about this
-print(ytrue.shape)
-# print('ytrue: ', model.summary() )
-quit()
+
 acc = accuracy_score(ytrue, ypred)
 print('acc: ', acc)
 recall = recall_score(ytrue, ypred, average='macro')
@@ -105,5 +101,5 @@ f1 = f1_score(ytrue, ypred, average='macro')
 print('f1: ', f1)
 prec = precision_score(ytrue, ypred, average='macro')
 print('prec: ', prec)
-matrix = confusion_matrix(ytrue, ypred, labels=["ant", "bird", "cat"])
+matrix = confusion_matrix(ytrue, ypred)
 print('matrix: ', matrix)
